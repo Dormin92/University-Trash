@@ -1,0 +1,63 @@
+package pbgLecture1lab;
+
+import static pbgLecture1lab.BasicPhysicsEngine.DELTA_T;
+
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+
+public class BasicParticle {
+	private final int RADIUS_OF_PARTICLE_IN_PIXELS;
+	
+	private final double radius;
+	private final Color col;
+	private final boolean improvedEuler;
+	private Vect2D pos, vel;
+	
+
+	public BasicParticle(double sx, double sy, double vx, double vy, double radius, boolean improvedEuler, Color col) 
+	{
+		pos = new Vect2D(sx, sy);
+		vel = new Vect2D(vx, vy);
+		
+		this.radius=radius;
+		this.improvedEuler=improvedEuler;
+		this.RADIUS_OF_PARTICLE_IN_PIXELS=Math.max(BasicPhysicsEngine.convertWorldLengthToScreenLength(radius),1);
+		this.col=col;
+	}
+
+	public void update() {
+		if (improvedEuler) {
+			// improved Euler
+			Vect2D acc = new Vect2D(0, -BasicPhysicsEngine.GRAVITY);
+			Vect2D trialVel = vel.add(acc.mult(DELTA_T));
+			pos = pos.add(vel.addScaled(trialVel, 0.5 * DELTA_T));
+			vel = vel.addScaled(acc.addScaled(acc, 0.5), DELTA_T);
+			 
+			
+		} else {
+			// basic Euler: TODO extend this to include BasicPhysicsEngine.GRAVITY
+			pos = pos.addScaled(vel, DELTA_T);
+			vel = vel.addScaled(new Vect2D(0, -BasicPhysicsEngine.GRAVITY), DELTA_T);
+		}
+	}
+
+
+	public void draw(Graphics2D g) {
+		int x = BasicPhysicsEngine.convertWorldXtoScreenX(pos.x);
+		int y = BasicPhysicsEngine.convertWorldYtoScreenY(pos.y);
+		g.setColor(col);
+		g.fillOval(x - RADIUS_OF_PARTICLE_IN_PIXELS, y - RADIUS_OF_PARTICLE_IN_PIXELS, 2 * RADIUS_OF_PARTICLE_IN_PIXELS, 2 * RADIUS_OF_PARTICLE_IN_PIXELS);
+	}
+
+	public double getRadius() {
+		return radius;
+	}
+
+	public double getX() {
+		return pos.x;
+	}
+	public double getY() {
+		return pos.y;
+	}
+}
